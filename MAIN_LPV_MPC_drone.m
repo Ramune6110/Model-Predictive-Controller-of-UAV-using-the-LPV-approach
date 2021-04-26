@@ -30,7 +30,7 @@ height_i = 2;
 height_f = 5;
 [X_ref, X_dot_ref, Y_ref, Y_dot_ref, Z_ref, Z_dot_ref, psi_ref] = trajectory_generator(t, r, f, height_i, height_f);
 
-poltl = length(t); % Number of outer control loop iterations
+plotl = length(t); % Number of outer control loop iterations
 
 %% Load the initial state vector
 
@@ -54,3 +54,30 @@ states_total = states;
 % phit, thetat, psit
 ref_angles_total  = [phit, thetat, psit];
 velocityXYZ_total = [X_dot_ref(1, 2), Y_dot_ref(1, 2), Z_dot_ref(1, 2)];
+
+% Initial Drone state
+omega1 = 3000; % rad/s at t = -1s
+omega2 = 3000; % rad/s at t = -1s
+omega3 = 3000; % rad/s at t = -1s
+omega4 = 3000; % rad/s at t = -1s
+
+ct = constants{11};
+cq = constants{12};
+l  = constants{13};
+
+U1 = ct * (omega1^2 + omega2^2 + omega3^2 + omega4^2); % Input at t = -1s
+U2 = ct * l * (omega4^2 - omega2^2); % Input at t = -1s
+U3 = ct * l * (omega3^2 - omega1^2); % Input at t = -1s
+U4 = cq * (-omega1^2 + omega2^2 - omega3^2 + omega4^2); % Input at t = -1s
+
+UTotal = [U1, U2, U3, U4];
+
+global omega_total
+omega_total = -omega1 + omega2 - omega3 + omega4;
+
+%% Start the global controller
+
+for i_global = 1:plotl - 1
+    %% Implement the position controller(state feedback linearization)
+    [phi_ref, theta_ref, U1] = pos_controller(X_ref(i_global +1 ,2), X_dot_ref(i_global +1 ,2),Y_ref(i_global +1 ,2), Y_dot_ref(i_global +1 ,2), Z_ref(i_global +1 ,2), Z_dot_ref(i_global +1 ,2), psi_ref(i_global +1 ,2), states);
+end

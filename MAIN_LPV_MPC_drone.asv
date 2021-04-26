@@ -81,16 +81,7 @@ for i_global = 1:plotl - 1
     %% Implement the position controller(state feedback linearization)
     [phi_ref, theta_ref, U1] = pos_controller(X_ref(i_global +1 ,2), X_dot_ref(i_global +1 ,2),Y_ref(i_global +1 ,2), Y_dot_ref(i_global +1 ,2), Z_ref(i_global +1 ,2), Z_dot_ref(i_global +1 ,2), psi_ref(i_global +1 ,2), states);
     
-    Phi_ref   = phi_ref * ones(innerDyn_length + 1, 1);
+    Phi_ref = phi_ref * ones(innerDyn_length + 1, 1);
     Theta_ref = theta_ref * ones(innerDyn_length + 1, 1);
-    Psi_ref   = psi_ref(i_global +1 ,2) * ones(innerDyn_length + 1, 1);
-    
-    ref_angles_total = [ref_angles_total; Phi_ref(2 : end), Theta_ref(2 : end), Psi_ref(2 : end)];
-    
-    %& Create the reference vector
-    refSignals = zeros(length(Phi_ref(:, 1)) * controlled_states, 1);
-    % Format : refSignals = [Phi_ref; Theta_ref; Psi_ref; Phi_ref; ... etc]
-    
-    % loop frequency per one set of position controller outputs
-    k_ref_local = 1;
+    Psi_ref = psi_ref(i_global +1 ,2) * ones
 end

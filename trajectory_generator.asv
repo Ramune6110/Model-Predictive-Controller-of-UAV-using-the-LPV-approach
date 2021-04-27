@@ -37,16 +37,9 @@ function [X_ref, X_dot_ref, X_dot_dot_ref, Y_ref, Y_dot_ref, Y_dot_dot_ref, Z_re
     
     x_dot_dot = -r .* cos(alpha) * (2 * pi * f)^2;
     y_dot_dot = -r .* sin(alpha) * (2 * pi * f)^2;
-    z_dot_dot = 0 .* ones(length(t));
+    z_dot_dot = 
     
-    dx = [x(2) - x(1), x(2 : end) - x(1 : end - 1)];
-    dy = [y(2) - y(1), y(2 : end) - y(1 : end - 1)];
-    dz = [z(2) - z(1), z(2 : end) - z(1 : end - 1)];
     
-    psi = zeros(1, length(x));
-    psi(1) = atan2(y(1), x(1)) + pi / 2;
-    psi(2 : end) = atan2(dy(2 : end), dx(2 : end));
-
     for i = 1:length(psi)
         if psi(i) < 0
             psi(i) = 2 * pi - abs(psi(i));

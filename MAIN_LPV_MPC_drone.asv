@@ -96,10 +96,9 @@ for i_global = 1:plotl - 1
     Theta_ref = theta_ref * ones(innerDyn_length + 1, 1);
     
     for yaw_step = 1:innerDyn_length + 1
-        Psi_ref(yaw_step, 1) = psi_ref(i_global, 2) + (psi_ref(i_global + 1, 2) - psi_ref(i_global, 2)) / (Ts * innerDyn_length) * Ts * yaw_step;
+        Psi_ref(yaw_step) = psi_ref(i_global, 2) + (psi_ref(i_global + 1, 2) - psi_ref(i_global, 2)) / 
     end
-    
-%     Psi_ref   = psi_ref(i_global +1 ,2) * ones(innerDyn_length + 1, 1);
+    Psi_ref   = psi_ref(i_global +1 ,2) * ones(innerDyn_length + 1, 1);
     
     ref_angles_total = [ref_angles_total; Phi_ref(2 : end), Theta_ref(2 : end), Psi_ref(2 : end)];
     

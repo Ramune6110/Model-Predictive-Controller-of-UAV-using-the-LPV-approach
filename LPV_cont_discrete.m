@@ -1,4 +1,4 @@
-function [Ad, Bd , Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, psi, psi_dot] = LPV_cont_discrete(states)
+function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, psi, psi_dot] = LPV_cont_discrete(states)
     global omega_total;
     
     % This is an LPV model concernig the three rotational axis
@@ -88,4 +88,9 @@ function [Ad, Bd , Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, 
     Bd = sysd.B;
     Cd = sysd.C;
     Dd = sysd.D;
+    
+%     Ad = eye(size(A)) + Ts * A;
+%     Bd = Ts * B;
+%     Cd = C;
+%     Dd = D;
 end

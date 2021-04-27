@@ -159,14 +159,18 @@ for i_global = 1:plotl - 1
          end
          
          % Call the solver
-         options = optimset('Display', 'off');
+%          options = optimset('Display', 'off');
+         options = optimoptions('quadprog','Display','iter');
          lb = constants{16};
          ub = constants{17};
+         % Hdb‚Æft‚ª”­ŽU‚µ‚Ä‚µ‚Ü‚¤
          Hdb = real(Hdb);
-         ft = real(ft);
-         [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
-%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
+         ft  = real(ft);
+%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
+         [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
          
+%          du = -pinv(Hdb) * ft';
+
          % Update the real inputs (3.12)
          U2 = U2 + du(1);
          U3 = U3 + du(2);
@@ -216,23 +220,23 @@ for i_global = 1:plotl - 1
          omega2P2 = omega_vector(3, 1);
          omega1P2 = omega_vector(4, 1);
          
-         omega1 = sqrt(omega1P2);
-         omega2 = sqrt(omega2P2);
-         omega3 = sqrt(omega3P2);
-         omega4 = sqrt(omega4P2);
+%          omega1 = sqrt(omega1P2);
+%          omega2 = sqrt(omega2P2);
+%          omega3 = sqrt(omega3P2);
+%          omega4 = sqrt(omega4P2);
              
-%          if omega1P2<=0 || omega2P2<=0 || omega3P2<=0 || omega4P2<=0
-%             disp("You can't take a square root of a negative number")
-% %             disp("The problem might be that the trajectory is too chaotic or it might have large discontinuous jumps")
-% %             disp("Try to make a smoother trajectory without discontinuous jumps")
-% %             disp("Other possible causes might be values for variables such as Ts, hz, innerDyn_length, px, py, pz")
-% %             disp("If problems occur, please download the files again, use the default settings and try to change values one by one.")
-%          else
-%              omega1 = sqrt(omega1P2);
-%              omega2 = sqrt(omega2P2);
-%              omega3 = sqrt(omega3P2);
-%              omega4 = sqrt(omega4P2);
-%          end
+         if omega1P2 <= 0 || omega2P2 <= 0 || omega3P2 <= 0 || omega4P2 <= 0
+            disp("You can't take a square root of a negative number");
+%             disp("The problem might be that the trajectory is too chaotic or it might have large discontinuous jumps")
+%             disp("Try to make a smoother trajectory without discontinuous jumps")
+%             disp("Other possible causes might be values for variables such as Ts, hz, innerDyn_length, px, py, pz")
+%             disp("If problems occur, please download the files again, use the default settings and try to change values one by one.")
+         else
+             omega1 = sqrt(omega1P2);
+             omega2 = sqrt(omega2P2);
+             omega3 = sqrt(omega3P2);
+             omega4 = sqrt(omega4P2);
+         end
          
          % Compute teh total omega
 %          omega_total = -omega1 + omega2 - omega3 + omega4;
@@ -251,10 +255,17 @@ for i_global = 1:plotl - 1
          if imaginary_check_sum ~= 0
              disp('Imaginary');
          end
+         
+        % Trajectory
+        figure(1);
+        plot3(X_ref(:, 2), Y_ref(:, 2), Z_ref(:, 2), '-b', 'LineWidth', 2);
+        hold on
+        plot3(states_total(1:innerDyn_length:end, 7), states_total(1:innerDyn_length:end, 8), states_total(1:innerDyn_length:end, 9), 'r', 'LineWidth', 1);
+        grid on;
     end
 end
 
-disp('end');
+disp('simulation end!');
 
 %% Plot the trajectory
 % Trajectory

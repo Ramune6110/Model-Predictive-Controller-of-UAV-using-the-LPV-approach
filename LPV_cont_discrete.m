@@ -82,15 +82,15 @@ function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, p
     D = zeros(3, 3);
     
     % Discretize the system
-    sysc = ss(A, B, C, D);
-    sysd = c2d(sysc, Ts, 'zoh');
-    Ad = sysd.A;
-    Bd = sysd.B;
-    Cd = sysd.C;
-    Dd = sysd.D;
+%     sysc = ss(A, B, C, D);
+%     sysd = c2d(sysc, Ts, 'zoh');
+%     Ad = real(sysd.A);
+%     Bd = real(sysd.B);
+%     Cd = real(sysd.C);
+%     Dd = real(sysd.D);
     
-%     Ad = eye(size(A)) + Ts .* A;
-%     Bd = Ts .* B;
-%     Cd = C;
-%     Dd = D;
+    Ad = real(eye(size(A)) + Ts .* A);
+    Bd = real(Ts .* B);
+    Cd = real(C);
+    Dd = real(D);
 end

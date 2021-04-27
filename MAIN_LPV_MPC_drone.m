@@ -1,20 +1,8 @@
+%% Main file for controllering the drone
 clear
 close all
 clc
 
-%% Main file for controllering the drone
-
-%% The controller consists of the position controller
-%% State feedback linearization
-
-%% The relevant function files to this main file are the following:
-   % initial_constants.m
-   % LPV__cont_discreate.m
-   % MPC_simplification.m
-   % nonlinear_drone_model.m
-   % trajectory_generator.m
-   % pos_controller.m
-   
 %% Load the cons tant values
 constants = initial_constants();
 Ts = constants{7};
@@ -39,11 +27,11 @@ wt     = 0;
 pt     = 0;
 qt     = 0;
 rt     = 0;
-xt     = 0;  % X_ref(1, 2) Initial translational position
-yt     = -1; % Y_ref(1, 2) Initial translational position
-zt     = 0;  % Z_ref(1, 2) Initial translational position
+xt     = 0;             % X_ref(1, 2) Initial translational position
+yt     = -1;            % Y_ref(1, 2) Initial translational position
+zt     = 0;             % Z_ref(1, 2) Initial translational position
 phit   = 0;             % Initial angular position
-thetat = 0;           % Initial angular position
+thetat = 0;             % Initial angular position
 psit   = psi_ref(1, 2); % Initial angular position
 
 states = [ut, vt, wt, pt, qt, rt, xt, yt, zt, phit, thetat, psit];
@@ -69,11 +57,6 @@ ct = constants{11};
 cq = constants{12};
 l  = constants{13};
 
-% U1 = ct * (omega1^2 + omega2^2 + omega3^2 + omega4^2); % Input at t = -1s
-% U2 = ct * l * (omega4^2 - omega2^2); % Input at t = -1s
-% U3 = ct * l * (omega3^2 - omega1^2); % Input at t = -1s
-% U4 = cq * (-omega1^2 + omega2^2 - omega3^2 + omega4^2); % Input at t = -1s
-
 U1 = ct * (omega1^2 + omega2^2 + omega3^2 + omega4^2); % Input at t = -1s
 U2 = ct * l * (omega2^2 - omega4^2); % Input at t = -1s
 U3 = ct * l * (omega3^2 - omega1^2); % Input at t = -1s
@@ -82,12 +65,11 @@ U4 = cq * (-omega1^2 + omega2^2 - omega3^2 + omega4^2); % Input at t = -1s
 UTotal = [U1, U2, U3, U4];
 
 global omega_total
-% omega_total = -omega1 + omega2 - omega3 + omega4;
-
 omega_total = omega1 - omega2 + omega3 - omega4;
 
 %% Start the global controller
 % outer loop position controller
+tic;
 for i_global = 1:plotl - 1
     %% Implement the position controller(state feedback linearization)
     [phi_ref, theta_ref, U1] = pos_controller(X_ref(i_global + 1 ,2), X_dot_ref(i_global + 1 ,2), X_dot_dot_ref(i_global + 1 ,2), Y_ref(i_global + 1 ,2), Y_dot_ref(i_global + 1 ,2), Y_dot_dot_ref(i_global + 1 ,2), Z_ref(i_global + 1 ,2), Z_dot_ref(i_global + 1 ,2), Z_dot_dot_ref(i_global + 1 ,2), psi_ref(i_global + 1 ,2), states);
@@ -160,16 +142,13 @@ for i_global = 1:plotl - 1
          
          % Call the solver
 %          options = optimset('Display', 'off');
-         options = optimoptions('quadprog','Display','iter');
+         options = optimoptions('quadprog','Display','off');
          lb = constants{16};
          ub = constants{17};
-         % HdbÇ∆ftÇ™î≠éUÇµÇƒÇµÇ‹Ç§
          Hdb = real(Hdb);
          ft  = real(ft);
 %          [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
          [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
-         
-%          du = -pinv(Hdb) * ft';
 
          % Update the real inputs (3.12)
          U2 = U2 + du(1);
@@ -180,66 +159,49 @@ for i_global = 1:plotl - 1
          
          % Compute the new omegas based on the new U-s
          % (2.2)Ç©ÇÁãtéZÇµÇƒomega1...omega4ÇéZèoÇµÇƒÇ¢ÇÈ
-%          U1C = U1 / ct;
-%          U2C = U2 / (ct * l);
-%          U3C = U3 / (ct * l);
-%          U4C = U4 / cq;
-%          
-%          omega4P2 = (U1C + 2 * U2C + U4C) / 4;
-%          omega3P2 = (-U4C + 2 * omega4P2 - U2C + U3C) / 2;
-%          omega2P2 = omega4P2 - U2C;
-%          omega1P2 = omega3P2 - U3C;
-%          
-%          omega1 = sqrt(omega1P2);
-%          omega2 = sqrt(omega2P2);
-%          omega3 = sqrt(omega3P2);
-%          omega4 = sqrt(omega4P2);
-         
-         % python version
          U1C = U1 / ct;
          U2C = U2 / (ct * l);
          U3C = U3 / (ct * l);
          U4C = U4 / cq;
          
-         UC_vector = zeros(4, 1);
-         UC_vector(1, 1) = U1C;
-         UC_vector(2, 1) = U2C;
-         UC_vector(3, 1) = U3C;
-         UC_vector(4, 1) = U4C;
+         omega4P2 = (U1C + 2 * U2C + U4C) / 4;
+         omega3P2 = (-U4C + 2 * omega4P2 - U2C + U3C) / 2;
+         omega2P2 = omega4P2 - U2C;
+         omega1P2 = omega3P2 - U3C;
          
-         omega_Matrix = [1 1 1 1;
-                         0 1 0 -1;
-                         -1 0 1 0;
-                         -1 1 -1 1];
-                     
-         omega_Matrix_inverse = pinv(omega_Matrix);
-         omega_vector = omega_Matrix_inverse * UC_vector;
-         
-         omega4P2 = omega_vector(1, 1);
-         omega3P2 = omega_vector(2, 1);
-         omega2P2 = omega_vector(3, 1);
-         omega1P2 = omega_vector(4, 1);
-         
-%          omega1 = sqrt(omega1P2);
-%          omega2 = sqrt(omega2P2);
-%          omega3 = sqrt(omega3P2);
-%          omega4 = sqrt(omega4P2);
+         % python version
+%          U1C = U1 / ct;
+%          U2C = U2 / (ct * l);
+%          U3C = U3 / (ct * l);
+%          U4C = U4 / cq;
+%          
+%          UC_vector = zeros(4, 1);
+%          UC_vector(1, 1) = U1C;
+%          UC_vector(2, 1) = U2C;
+%          UC_vector(3, 1) = U3C;
+%          UC_vector(4, 1) = U4C;
+%          
+%          omega_Matrix = [1 1 1 1;
+%                          0 1 0 -1;
+%                          -1 0 1 0;
+%                          -1 1 -1 1];
+%                      
+%          omega_Matrix_inverse = pinv(omega_Matrix);
+%          omega_vector = omega_Matrix_inverse * UC_vector;
+%          
+%          omega4P2 = omega_vector(1, 1);
+%          omega3P2 = omega_vector(2, 1);
+%          omega2P2 = omega_vector(3, 1);
+%          omega1P2 = omega_vector(4, 1);
              
          if omega1P2 <= 0 || omega2P2 <= 0 || omega3P2 <= 0 || omega4P2 <= 0
             disp("You can't take a square root of a negative number");
-%             disp("The problem might be that the trajectory is too chaotic or it might have large discontinuous jumps")
-%             disp("Try to make a smoother trajectory without discontinuous jumps")
-%             disp("Other possible causes might be values for variables such as Ts, hz, innerDyn_length, px, py, pz")
-%             disp("If problems occur, please download the files again, use the default settings and try to change values one by one.")
          else
              omega1 = sqrt(omega1P2);
              omega2 = sqrt(omega2P2);
              omega3 = sqrt(omega3P2);
              omega4 = sqrt(omega4P2);
          end
-         
-         % Compute teh total omega
-%          omega_total = -omega1 + omega2 - omega3 + omega4;
          
          omega_total = omega1 - omega2 + omega3 - omega4;
          
@@ -256,21 +218,17 @@ for i_global = 1:plotl - 1
              disp('Imaginary');
          end
          
-        % Trajectory
-        figure(1);
-        plot3(X_ref(:, 2), Y_ref(:, 2), Z_ref(:, 2), '-b', 'LineWidth', 2);
-        hold on
-        plot3(states_total(1:innerDyn_length:end, 7), states_total(1:innerDyn_length:end, 8), states_total(1:innerDyn_length:end, 9), 'r', 'LineWidth', 1);
-        grid on;
+%         % Trajectory
+%         figure(1);
+%         plot3(X_ref(:, 2), Y_ref(:, 2), Z_ref(:, 2), '-b', 'LineWidth', 2);
+%         hold on
+%         plot3(states_total(1:innerDyn_length:end, 7), states_total(1:innerDyn_length:end, 8), states_total(1:innerDyn_length:end, 9), 'r', 'LineWidth', 1);
+%         grid on;
     end
 end
+toc
 
 disp('simulation end!');
 
-%% Plot the trajectory
-% Trajectory
-figure(1);
-plot3(X_ref(:, 2), Y_ref(:, 2), Z_ref(:, 2), '-b', 'LineWidth', 2);
-hold on
-plot3(states_total(1:innerDyn_length:end, 7), states_total(1:innerDyn_length:end, 8), states_total(1:innerDyn_length:end, 9), 'r', 'LineWidth', 1);
-grid on;
+% Plot the result
+DrowResults(X_ref, X_dot_ref, Y_ref, Y_dot_ref, Z_ref, Z_dot_ref, states_total, velocityXYZ_total, ref_angles_total, UTotal, plotl, t, t_angles);

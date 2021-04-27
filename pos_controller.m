@@ -101,9 +101,5 @@ function [Phi_ref, Theta_ref, U1] = pos_controller(X_ref, X_dot_ref, X_dot_dot_r
      
      Phi_ref = atan(tan_phi);
      U1 = (vz + g) * m / (cos(Phi_ref) * cos(Theta_ref));
-     
-     %% Check
-     vx;
-     vy;
-     vz;
+    
 end

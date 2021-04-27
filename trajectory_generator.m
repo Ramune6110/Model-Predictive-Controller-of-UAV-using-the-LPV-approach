@@ -1,56 +1,39 @@
 function [X_ref, X_dot_ref, X_dot_dot_ref, Y_ref, Y_dot_ref, Y_dot_dot_ref, Z_ref, Z_dot_ref, Z_dot_dot_ref, psi_ref] = trajectory_generator(t, r, f, height_i, height_f)
-    constants = initial_constants();
-    Ts = constants{7};
-    innerDyn_length = constants{18}; % Number of inner control loop iterations
+    constants  = initial_constants();
+    trajectory = constants{22}; 
     
     alpha = 2 * pi * f .* t;
     d_height = height_f - height_i;
     
-%     dx = [x(2) - x(1), x(2 : end) - x(1 : end - 1)];
-%     dy = [y(2) - y(1), y(2 : end) - y(1 : end - 1)];
-%     dz = [z(2) - z(1), z(2 : end) - z(1 : end - 1)];
-% 
-%     x_dot = dx .* (1 / (Ts * innerDyn_length));
-%     y_dot = dy .* (1 / (Ts * innerDyn_length));
-%     z_dot = round(dz .* (1 / (Ts * innerDyn_length)), 8);
-%     
-%     ddx = [dx(2) - dx(1), dx(2 : end) - dx(1 : end - 1)];
-%     ddy = [dy(2) - dy(1), dy(2 : end) - dy(1 : end - 1)];
-%     ddz = [dz(2) - dz(1), dz(2 : end) - dz(1 : end - 1)];
-%     
-%     x_dot_dot = ddx .* (1 / (Ts * innerDyn_length));
-%     y_dot_dot = ddy .* (1 / (Ts * innerDyn_length));
-%     z_dot_dot = round(ddz .* (1 / (Ts * innerDyn_length)), 8);
-%     
-%     psi = zeros(1, length(x));
-%     psi(1) = atan2(y(1), x(1)) + pi / 2;
-%     psi(2 : end) = atan2(dy(2 : end), dx(2 : end));
-    
-    % python version trajectory = 1
-%     x = r .* cos(alpha);
-%     y = r .* sin(alpha);
-%     z = height_i + d_height / t(end) * t;
-%     
-%     x_dot = -r .* sin(alpha) * 2 * pi * f;
-%     y_dot = r .* cos(alpha) * 2 * pi * f;
-%     z_dot = round(d_height / t(end) * ones(length(t)), 8);
-%     
-%     x_dot_dot = -r .* cos(alpha) * (2 * pi * f)^2;
-%     y_dot_dot = -r .* sin(alpha) * (2 * pi * f)^2;
-%     z_dot_dot = 0 .* ones(length(t));
-    
-    % python version trajectory = 8
-    x = r / 5 .* sin(alpha) + t / 100;
-    y = t / 100 - 1;
-    z = height_i + d_height / t(end) * t;
-    
-    x_dot = r / 5 .* cos(alpha) * 2 * pi * f + 1 / 100;
-    y_dot = 1 / 100 .* ones(length(t));
-    z_dot = round(d_height / t(end) * ones(length(t)), 8);
-    
-    x_dot_dot = -r / 5 .* sin(alpha) * (2 * pi * f)^2;
-    y_dot_dot = 0 .* ones(length(t));
-    z_dot_dot = 0 .* ones(length(t));
+    if trajectory == 1
+        % python version trajectory = 1
+        x = r .* cos(alpha);
+        y = r .* sin(alpha);
+        z = height_i + d_height / t(end) * t;
+
+        x_dot = -r .* sin(alpha) * 2 * pi * f;
+        y_dot = r .* cos(alpha) * 2 * pi * f;
+        z_dot = round(d_height / t(end) * ones(length(t)), 8);
+
+        x_dot_dot = -r .* cos(alpha) * (2 * pi * f)^2;
+        y_dot_dot = -r .* sin(alpha) * (2 * pi * f)^2;
+        z_dot_dot = 0 .* ones(length(t));
+    elseif trajectory == 2
+        % python version trajectory = 8
+        x = r / 5 .* sin(alpha) + t / 100;
+        y = t / 100 - 1;
+        z = height_i + d_height / t(end) * t;
+
+        x_dot = r / 5 .* cos(alpha) * 2 * pi * f + 1 / 100;
+        y_dot = 1 / 100 .* ones(length(t));
+        z_dot = round(d_height / t(end) * ones(length(t)), 8);
+
+        x_dot_dot = -r / 5 .* sin(alpha) * (2 * pi * f)^2;
+        y_dot_dot = 0 .* ones(length(t));
+        z_dot_dot = 0 .* ones(length(t));
+    else 
+        disp('No trajectory');
+    end
     
     dx = [x(2) - x(1), x(2 : end) - x(1 : end - 1)];
     dy = [y(2) - y(1), y(2 : end) - y(1 : end - 1)];

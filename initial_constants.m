@@ -19,7 +19,7 @@ function constants = initial_constants()
     
 %     ct = 7.6184 * 10^(-8); % N * s^2
 %     cq = 2.6839 * 10^(-9); % N * m^2
-%     
+   
     ct = 7.6184 * 10^(-8) * (60/(2 * pi))^2; % N * s^2
     cq = 2.6839 * 10^(-9) * (60/(2 * pi))^2; % N * m^2
     
@@ -34,15 +34,13 @@ function constants = initial_constants()
     
     innerDyn_length = 4; % Number of inner control loop iterations
     
-%     px = [-1 + 0j -2 + 0j];
-%     py = [-1 + 0j -2 + 0j];
-%     pz = [-1 + 0j -2 + 0j];
-%     
     px = [-1 -2];
     py = [-1 -2];
     pz = [-1 -2];
     
+    % trajectory type
+    trajectory = 2;
+    
     % Number of 21
-    constants = {Ix Iy Iz m g Jtp Ts Q S R ct cq l controlled_states hz lb ub innerDyn_length px py pz};
+    constants = {Ix Iy Iz m g Jtp Ts Q S R ct cq l controlled_states hz lb ub innerDyn_length px py pz trajectory};
 end
-

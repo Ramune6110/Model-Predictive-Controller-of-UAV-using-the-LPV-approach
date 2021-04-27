@@ -65,15 +65,23 @@ ct = constants{11};
 cq = constants{12};
 l  = constants{13};
 
+% U1 = ct * (omega1^2 + omega2^2 + omega3^2 + omega4^2); % Input at t = -1s
+% U2 = ct * l * (omega4^2 - omega2^2); % Input at t = -1s
+% U3 = ct * l * (omega3^2 - omega1^2); % Input at t = -1s
+% U4 = cq * (-omega1^2 + omega2^2 - omega3^2 + omega4^2); % Input at t = -1s
+
 U1 = ct * (omega1^2 + omega2^2 + omega3^2 + omega4^2); % Input at t = -1s
-U2 = ct * l * (omega4^2 - omega2^2); % Input at t = -1s
+U2 = ct * l * (omega2^2 - omega4^2); % Input at t = -1s
 U3 = ct * l * (omega3^2 - omega1^2); % Input at t = -1s
 U4 = cq * (-omega1^2 + omega2^2 - omega3^2 + omega4^2); % Input at t = -1s
+
 
 UTotal = [U1, U2, U3, U4];
 
 global omega_total
-omega_total = -omega1 + omega2 - omega3 + omega4;
+% omega_total = -omega1 + omega2 - omega3 + omega4;
+
+omega_total = omega1 - omega2 + omega3 - omega4;
 
 %% Start the global controller
 % outer loop position controller
@@ -147,5 +155,39 @@ for i_global = 1:plotl - 1
          lb = constants{16};
          ub = constants{17};
          [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
+         
+         % Update the real inputs (3.12)
+         U2 = U2 + du(1);
+         U3 = U3 + du(2);
+         U4 = U4 + du(3);
+         
+         UTotal = [U1, U2, U3, U4];
+         
+         % Compute the new omegas based on the new U-s
+         % (2.2)‚©‚ç‹tZ‚µ‚Äomega1...omega4‚ğZo‚µ‚Ä‚¢‚é
+         U1C = U1 / ct;
+         U2C = U2 / (ct * l);
+         U3C = U3 / (ct * l);
+         U4C = U4 / cq;
+         
+         omega4P2 = (U1C + 2 * U2C + U4C) / 4;
+         omega3P2 = (-U4C + 2 * omega4P2 - U2C + U3C) / 2;
+         omega2P2 = omega4P2 - U2C;
+         omega1P2 = omega3P2 - U3C;
+         
+         omega1 = sqrt(omega1P2);
+         omega2 = sqrt(omega2P2);
+         omega3 = sqrt(omega3P2);
+         omega4 = sqrt(omega4P2);
+         
+         % Compute teh total omega
+%          omega_total = -omega1 + omega2 - omega3 + omega4;
+         
+         omega_total = omega1 - omega2 + omega3 - omega4;
+%          
+%          % Simulate the new states
+%          T = (Ts) * (i - 1) : (Ts) / 30 : Ts * (i - 1) + (Ts);
+%          [T, x] = ode45(@(t, x) nonlinear_drone_model(t, x, [U1, U2, U3, U4]), T, states);
+         
     end
 end

@@ -41,11 +41,21 @@ function [Ad, Bd , Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, 
     theta_dot = T_matrix(2, :) * [p; q; r];
     psi_dot   = T_matrix(3, :) * [p; q; r];
     
+%     A12 = 1;
+%     A24 = -omega_total * Jtp / Ix;
+%     A26 = theta_dot * (Iy - Iz) / Ix;
+%     A34 = 1;
+%     A42 = omega_total * Jtp / Iy;
+%     A46 = phi_dot * (Iz - Ix) / Iy;
+%     A56 = 1;
+%     A62 = (theta_dot / 2) * (Ix - Iy) / Iz;
+%     A64 = (phi_dot / 2) * (Ix - Iy) / Iz;
+    
     A12 = 1;
-    A24 = -omega_total * Jtp / Ix;
+    A24 = omega_total * Jtp / Ix;
     A26 = theta_dot * (Iy - Iz) / Ix;
     A34 = 1;
-    A42 = omega_total * Jtp / Iy;
+    A42 = -omega_total * Jtp / Iy;
     A46 = phi_dot * (Iz - Ix) / Iy;
     A56 = 1;
     A62 = (theta_dot / 2) * (Ix - Iy) / Iz;

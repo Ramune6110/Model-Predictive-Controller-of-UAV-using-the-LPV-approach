@@ -79,7 +79,7 @@ function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, p
          0 0 1 0 0 0;
          0 0 0 0 1 0];
     
-    D = 0;
+    D = zeros(3, 3);
     
     % Discretize the system
     sysc = ss(A, B, C, D);
@@ -89,8 +89,8 @@ function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, p
     Cd = sysd.C;
     Dd = sysd.D;
     
-%     Ad = eye(size(A)) + Ts * A;
-%     Bd = Ts * B;
+%     Ad = eye(size(A)) + Ts .* A;
+%     Bd = Ts .* B;
 %     Cd = C;
 %     Dd = D;
 end

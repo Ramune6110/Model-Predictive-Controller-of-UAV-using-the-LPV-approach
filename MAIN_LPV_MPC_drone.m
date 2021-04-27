@@ -237,20 +237,20 @@ for i_global = 1:plotl - 1
          % Compute teh total omega
 %          omega_total = -omega1 + omega2 - omega3 + omega4;
          
-%          omega_total = omega1 - omega2 + omega3 - omega4;
-%          
-%          % Simulate the new states
-%          T = (Ts) * (i - 1) : (Ts) / 30 : Ts * (i - 1) + (Ts);
-%          [T, x] = ode45(@(t, x) nonlinear_drone_model(t, x, [U1, U2, U3, U4]), T, states);
-%          
-%          states = x(end, :);
-%          states_total = [states_total; states];
-%          
-%          imaginary_check = imag(states) ~= 0;
-%          imaginary_check_sum = sum(imaginary_check);
-%          if imaginary_check_sum ~= 0
-%              disp('Imaginary');
-%          end
+         omega_total = omega1 - omega2 + omega3 - omega4;
+         
+         % Simulate the new states
+         T = (Ts) * (i - 1) : (Ts) / 30 : Ts * (i - 1) + (Ts);
+         [T, x] = ode45(@(t, x) nonlinear_drone_model(t, x, [U1, U2, U3, U4]), T, states);
+         
+         states = x(end, :);
+         states_total = [states_total; states];
+         
+         imaginary_check = imag(states) ~= 0;
+         imaginary_check_sum = sum(imaginary_check);
+         if imaginary_check_sum ~= 0
+             disp('Imaginary');
+         end
     end
 end
 

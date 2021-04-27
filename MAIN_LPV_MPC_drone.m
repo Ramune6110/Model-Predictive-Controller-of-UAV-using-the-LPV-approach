@@ -108,6 +108,24 @@ for i_global = 1:plotl - 1
         %% Generate discrete LPV Ad, Bd, Cd, Dd matrixs 
          [Ad, Bd , Cd, Dd, x_dot, y_dot, z_dot, phit, phi_dot, thetat, theta_dot, psit, psi_dot] = LPV_cont_discrete(states);
          
+         velocityXYZ_total = [velocityXYZ_total; [x_dot, y_dot, z_dot]];
          
+         %% Generating the current state and the reference vector
+         x_aug_t = [phit; phi_dot; thetat; theta_dot; psit; psi_dot; U2; U3; U4];
+         
+         k_ref_local = k_ref_local + controlled_states;
+         
+         % Start counting form the second sample period
+         % r = refSignals(Phi_ref_2; Theta_ref2, Psi_ref2,Phi_ref_3;...etc)
+         
+         if k_ref_local + controlled_states * hz - 1 <= length(refSignals)
+             r = refSignals(k_ref_local : k_ref_local + controlled_states * hz - 1);
+         else
+             r = refSignals(k_ref_local : length(refSignals));
+             hz = hz - 1;
+         end
+         
+         %% Generate simplification matrixces for the cost function
+         [Hdb, Fdbt, Cdb, Adc] = MPC_simplification(Ad, Bd, Cd, Dd, hz);
     end
 end

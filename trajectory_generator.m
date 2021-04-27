@@ -1,7 +1,6 @@
 function [X_ref, X_dot_ref, Y_ref, Y_dot_ref, Z_ref, Z_dot_ref, psi_ref] = trajectory_generator(t, r, f, height_i, height_f)
     constants = initial_constants();
     Ts = constants{7};
-    controlled_states = constants{14}; % Number of controlled states
     innerDyn_length = constants{18}; % Number of inner control loop iterations
     
     alpha = 2 * pi * f .* t;

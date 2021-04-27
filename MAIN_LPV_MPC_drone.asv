@@ -94,20 +94,7 @@ for i_global = 1:plotl - 1
     % loop frequency per one set of position controller outputs
     k_ref_local = 1;
     for i = 1:controlled_states:length(refSignals)
-        refSignals(i)     = Phi_ref(k_ref_local, 1);
-        refSignals(i + 1) = Theta_ref(k_ref_local, 1);
-        refSignals(i + 2) = Psi_ref(k_ref_local, 1);
-        k_ref_local = k_ref_local + 1;
-    end
-    
-    k_ref_local = 1; % for reading reference signals
-    hz = constants{15};
-    
-    % inner loop attitude controller
-    for i = 1:innerDyn_length
-        %% Generate discrete LPV Ad, Bd, Cd, Dd matrixs 
-         [Ad, Bd , Cd, Dd, x_dot, y_dot, z_dot, phit, phi_dot, thetat, theta_dot, psit, psi_dot] = LPV_cont_discrete(states);
-         
-         
+        refSignals(i) = Phi_ref(k_ref_local, 1);
+        refSignals(i + 1) = 
     end
 end

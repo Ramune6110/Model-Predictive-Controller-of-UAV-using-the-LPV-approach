@@ -22,7 +22,7 @@ function [Hdb, Fdbt, Cdb, Adc] = MPC_simplification(Ad, Bd, Cd, Dd, hz)
     Tdb = zeros(length(QC(:, 1)) * hz, length(QC(1, :)) * hz);
     Rdb = zeros(length(R(:, 1)) * hz, length(R(1, :)) * hz);
     Cdb = zeros(length(B_aug(:, 1)) * hz, length(B_aug(1, :)) * hz);
-    Adc = zeros(length(A_aug(:, 1)) * hz, length(A_aug(1, :)) * hz);
+    Adc = zeros(length(A_aug(:, 1)) * hz, length(A_aug(1, :)));
     
     for i = 1:hz
         if i == hz
@@ -41,7 +41,7 @@ function [Hdb, Fdbt, Cdb, Adc] = MPC_simplification(Ad, Bd, Cd, Dd, hz)
             end
         end
         
-        Adc(1 + length(A_aug(:, 1)) * (i - 1) : length(A_aug(:, 1)) * i, 1 + length(A_aug(1, :)) * (i - 1) : length(A_aug(1, :)) * i) = A_aug^(i);
+        Adc(1 + length(A_aug(:, 1)) * (i - 1) : length(A_aug(:, 1)) * i, 1 : length(A_aug(1, :))) = A_aug^(i);
     end
     
     Hdb  = Cdb' * Qdb * Cdb + Rdb;

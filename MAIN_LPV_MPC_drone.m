@@ -127,5 +127,25 @@ for i_global = 1:plotl - 1
          
          %% Generate simplification matrixces for the cost function
          [Hdb, Fdbt, Cdb, Adc] = MPC_simplification(Ad, Bd, Cd, Dd, hz);
+         
+         %% Calling the optimizer (quadprog)
+         % cost function in quadprog : min(du) * 1 / 2 * du'Hdb*du + f'du
+         % f' = [x_t', r'] * Fdbt
+         
+         ft = [x_aug_t', r'] * Fdbt;
+         
+         % Hdb must be positive definite for the problem to have finite minimum
+         % Check if Hdb in the cost function is positive definete
+         
+         [~, p] = chol(Hdb);
+         if p ~= 0
+             disp('Hdb is not positive definite!');
+         end
+         
+         % Call the solver
+         options = optimset('Display', 'off');
+         lb = constants{16};
+         ub = constants{17};
+         [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
     end
 end

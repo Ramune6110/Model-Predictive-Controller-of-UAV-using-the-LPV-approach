@@ -11,7 +11,6 @@ function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, p
     
     % Assign the statets
     % States : [u, v, w, p, q, r, x, y, z, phi, theta, psi]
-    
     u     = states(1);
     v     = states(2);
     w     = states(3);
@@ -72,15 +71,15 @@ function [Ad, Bd, Cd, Dd, x_dot, y_dot, z_dot, phi, phi_dot, theta, theta_dot, p
     D = zeros(3, 3);
     
     % Discretize the system
-%     sysc = ss(A, B, C, D);
-%     sysd = c2d(sysc, Ts, 'zoh');
-%     Ad = real(sysd.A);
-%     Bd = real(sysd.B);
-%     Cd = real(sysd.C);
-%     Dd = real(sysd.D);
+    sysc = ss(A, B, C, D);
+    sysd = c2d(sysc, Ts, 'zoh');
+    Ad = real(sysd.A);
+    Bd = real(sysd.B);
+    Cd = real(sysd.C);
+    Dd = real(sysd.D);
     
-    Ad = real(eye(size(A)) + Ts .* A);
-    Bd = real(Ts .* B);
-    Cd = real(C);
-    Dd = real(D);
+%     Ad = real(eye(size(A)) + Ts .* A);
+%     Bd = real(Ts .* B);
+%     Cd = real(C);
+%     Dd = real(D);
 end

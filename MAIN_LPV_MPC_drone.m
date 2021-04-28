@@ -76,18 +76,17 @@ for i_global = 1:plotl - 1
     
     Phi_ref   = phi_ref * ones(innerDyn_length + 1, 1);
     Theta_ref = theta_ref * ones(innerDyn_length + 1, 1);
+    Psi_ref   = psi_ref(i_global +1 ,2) * ones(innerDyn_length + 1, 1);
     
-    for yaw_step = 1:innerDyn_length + 1
-        Psi_ref(yaw_step, 1) = psi_ref(i_global, 2) + (psi_ref(i_global + 1, 2) - psi_ref(i_global, 2)) / (Ts * innerDyn_length) * Ts * yaw_step;
-    end
-    
-%     Psi_ref   = psi_ref(i_global +1 ,2) * ones(innerDyn_length + 1, 1);
+%     for yaw_step = 1:innerDyn_length + 1
+%         Psi_ref(yaw_step, 1) = psi_ref(i_global, 2) + (psi_ref(i_global + 1, 2) - psi_ref(i_global, 2)) / (Ts * innerDyn_length) * Ts * yaw_step;
+%     end
     
     ref_angles_total = [ref_angles_total; Phi_ref(2 : end), Theta_ref(2 : end), Psi_ref(2 : end)];
     
-    %& Create the reference vector
-    refSignals = zeros(length(Phi_ref(:, 1)) * controlled_states, 1);
+    % Create the reference vector
     % Format : refSignals = [Phi_ref; Theta_ref; Psi_ref; Phi_ref; ... etc]
+    refSignals = zeros(length(Phi_ref(:, 1)) * controlled_states, 1);
     
     % loop frequency per one set of position controller outputs
     k_ref_local = 1;
@@ -141,14 +140,14 @@ for i_global = 1:plotl - 1
          end
          
          % Call the solver
-%          options = optimset('Display', 'off');
          options = optimoptions('quadprog','Display','off');
          lb = constants{16};
          ub = constants{17};
          Hdb = real(Hdb);
+         Hdb = (Hdb + Hdb') / 2;
          ft  = real(ft);
-%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
-         [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
+         [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
+%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
 
          % Update the real inputs (3.12)
          U2 = U2 + du(1);

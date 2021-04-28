@@ -2,9 +2,6 @@ function [Phi_ref, Theta_ref, U1] = pos_controller(X_ref, X_dot_ref, X_dot_dot_r
     constants = initial_constants();
     m = constants{4}; 
     g = constants{5};
-    px = constants{19};
-    py = constants{20};
-    pz = constants{21};
     
     %% Assign the states
     % States : [u, v, w, p, q, r, x, y, z, phi, theta, psi]
@@ -35,54 +32,52 @@ function [Phi_ref, Theta_ref, U1] = pos_controller(X_ref, X_dot_ref, X_dot_dot_r
      ez     = Z_ref - z;
      ez_dot = Z_dot_ref - z_dot;
      
-     %% Compute the constants K1, K2, and the values vx, vy, vz 
-     %% to stabilize the position subsystem
+     %% Compute the constants K1, K2, and the values vx, vy, vz to stabilize the position subsystem
+     Ax = [0 1; 0 0];
+     Bx = [0; 1];
+     px = constants{19};
+     Kx = place(Ax, Bx, px);
+     ux = -Kx * [ex; ex_dot];
+     vx = -ux;
      
-%      Ax = [0 1; 0 0];
-%      Bx = [0; 1];
-%      px = constants{19};
-%      Kx = place(Ax, Bx, px);
-%      ux = -Kx * [ex; ex_dot];
-%      vx = -ux;
-%      
-%      Ay = [0 1; 0 0];
-%      By = [0; 1];
-%      py = constants{20};
-%      Ky = place(Ay, By, py);
-%      uy = -Ky * [ey; ey_dot];
-%      vy = -uy;
-%      
-%      Az = [0 1; 0 0];
-%      Bz = [0; 1];
-%      pz = constants{21};
-%      Kz = place(Az, Bz, pz);
-%      uz = -Kz * [ez; ez_dot];
-%      vz = -uz;
+     Ay = [0 1; 0 0];
+     By = [0; 1];
+     py = constants{20};
+     Ky = place(Ay, By, py);
+     uy = -Ky * [ey; ey_dot];
+     vy = -uy;
      
-     % python version
-    kx1 = (px(1, 1) - (px(1, 1) + px(1, 2)) / 2)^2 - (px(1, 1) + px(1, 2))^2 / 4;
-    kx2 = px(1, 1) + px(1, 2);
-    kx1 = real(kx1);
-    kx2 = real(kx2);
-    
-    ky1 = (py(1, 1) - (py(1, 1) + py(1, 2)) / 2)^2 - (py(1, 1) + py(1, 2))^2 / 4;
-    ky2 = py(1, 1) + py(1, 2);
-    ky1 = real(ky1);
-    ky2 = real(ky2);
-    
-    kz1 = (pz(1, 1) - (pz(1, 1) + pz(1, 2)) / 2)^2 - (pz(1, 1) + pz(1, 2))^2 / 4;
-    kz2 = pz(1, 1) + pz(1, 2);
-    kz1 = real(kz1);
-    kz2 = real(kz2);
-
-    % Compute the values vx, vy, vz for the position controller
-    ux = kx1 * ex + kx2 * ex_dot;
-    uy = ky1 * ey + ky2 * ey_dot;
-    uz = kz1 * ez + kz2 * ez_dot;
-    
-    vx = X_dot_dot_ref - ux(1, 1);
-    vy = Y_dot_dot_ref - uy(1, 1);
-    vz = Z_dot_dot_ref - uz(1, 1);
+     Az = [0 1; 0 0];
+     Bz = [0; 1];
+     pz = constants{21};
+     Kz = place(Az, Bz, pz);
+     uz = -Kz * [ez; ez_dot];
+     vz = -uz;
+     
+%      % python version
+%     kx1 = (px(1, 1) - (px(1, 1) + px(1, 2)) / 2)^2 - (px(1, 1) + px(1, 2))^2 / 4;
+%     kx2 = px(1, 1) + px(1, 2);
+%     kx1 = real(kx1);
+%     kx2 = real(kx2);
+%     
+%     ky1 = (py(1, 1) - (py(1, 1) + py(1, 2)) / 2)^2 - (py(1, 1) + py(1, 2))^2 / 4;
+%     ky2 = py(1, 1) + py(1, 2);
+%     ky1 = real(ky1);
+%     ky2 = real(ky2);
+%     
+%     kz1 = (pz(1, 1) - (pz(1, 1) + pz(1, 2)) / 2)^2 - (pz(1, 1) + pz(1, 2))^2 / 4;
+%     kz2 = pz(1, 1) + pz(1, 2);
+%     kz1 = real(kz1);
+%     kz2 = real(kz2);
+% 
+%     % Compute the values vx, vy, vz for the position controller
+%     ux = kx1 * ex + kx2 * ex_dot;
+%     uy = ky1 * ey + ky2 * ey_dot;
+%     uz = kz1 * ez + kz2 * ez_dot;
+%     
+%     vx = X_dot_dot_ref - ux(1, 1);
+%     vy = Y_dot_dot_ref - uy(1, 1);
+%     vz = Z_dot_dot_ref - uz(1, 1);
      
      %% Compute phi, theta, U1
      a = vx / (vz + g);

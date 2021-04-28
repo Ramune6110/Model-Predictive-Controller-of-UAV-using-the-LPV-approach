@@ -34,6 +34,7 @@ function constants = initial_constants()
     
     innerDyn_length = 4; % Number of inner control loop iterations
     
+    % à íuåÎç∑êßå‰ÇÃã…îzíu
     px = [-1 -2];
     py = [-1 -2];
     pz = [-1 -2];

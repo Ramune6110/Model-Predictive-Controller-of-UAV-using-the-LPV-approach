@@ -141,13 +141,15 @@ for i_global = 1:plotl - 1
          
          % Call the solver
          options = optimoptions('quadprog','Display','off');
-         lb = constants{16};
-         ub = constants{17};
+         lb  = constants{16};
+         ub  = constants{17};
+         lb  = ones(3*(5-i),1) * lb';
+         ub  = ones(3*(5-i),1) * ub';
          Hdb = real(Hdb);
          Hdb = (Hdb + Hdb') / 2;
          ft  = real(ft);
-         [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
-%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
+%          [du, fval] = quadprog(Hdb, ft, [], [], [], [], [], [], [], options);
+         [du, fval] = quadprog(Hdb, ft, [], [], [], [], lb, ub, [], options);
 
          % Update the real inputs (3.12)
          U2 = U2 + du(1);

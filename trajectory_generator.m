@@ -1,6 +1,8 @@
 function [X_ref, X_dot_ref, X_dot_dot_ref, Y_ref, Y_dot_ref, Y_dot_dot_ref, Z_ref, Z_dot_ref, Z_dot_dot_ref, psi_ref] = trajectory_generator(t, r, f, height_i, height_f)
-    constants  = initial_constants();
-    trajectory = constants{22}; 
+    constants       = initial_constants();
+    Ts              = constants{7}; 
+    innerDyn_length = constants{18};
+    trajectory      = constants{22}; 
     
     alpha = 2 * pi * f .* t;
     d_height = height_f - height_i;
@@ -31,7 +33,23 @@ function [X_ref, X_dot_ref, X_dot_dot_ref, Y_ref, Y_dot_ref, Y_dot_dot_ref, Z_re
         x_dot_dot = -r / 5 .* sin(alpha) * (2 * pi * f)^2;
         y_dot_dot = 0 .* ones(length(t));
         z_dot_dot = 0 .* ones(length(t));
-    else 
+    elseif trajectory == 3
+        x = r .* cos(alpha);
+        y = r .* sin(alpha);
+        z = height_i + d_height / t(end) * t;
+        
+        dx=[x(2)-x(1),x(2:end)-x(1:end-1)];
+        dy=[y(2)-y(1),y(2:end)-y(1:end-1)];
+        dz=[z(2)-z(1),z(2:end)-z(1:end-1)];
+
+        x_dot=dx.*(1/(Ts*innerDyn_length));
+        y_dot=dy.*(1/(Ts*innerDyn_length));
+        z_dot=round(dz.*(1/(Ts*innerDyn_length)),8);
+        
+        x_dot_dot = -r .* cos(alpha) * (2 * pi * f)^2;
+        y_dot_dot = -r .* sin(alpha) * (2 * pi * f)^2;
+        z_dot_dot = 0 .* ones(length(t));
+    else
         disp('No trajectory');
     end
     
